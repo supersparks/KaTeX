@@ -6,6 +6,7 @@
 var domTree = require("./domTree");
 var fontMetrics = require("./fontMetrics");
 var symbols = require("./symbols");
+var utils = require("./utils");
 
 /**
  * Makes a symbolNode after translation via the list of symbols in symbols.js.
@@ -41,17 +42,10 @@ var makeSymbol = function(value, style, mode, color, classes) {
 };
 
 /**
- * Makes a symbol in the italic math font.
+ * Makes a symbol in Main-Regular or AMS-Regular.
+ * Used for rel, bin, open, close, inner, and punct.
  */
-var mathit = function(value, mode, color, classes) {
-    return makeSymbol(
-        value, "Math-Italic", mode, color, classes.concat(["mathit"]));
-};
-
-/**
- * Makes a symbol in the upright roman font.
- */
-var mathrm = function(value, mode, color, classes) {
+var mathsym = function(value, mode, color, classes) {
     // Decide what font to render the symbol in by its entry in the symbols
     // table.
     if (symbols[mode][value].font === "main") {
@@ -59,6 +53,128 @@ var mathrm = function(value, mode, color, classes) {
     } else {
         return makeSymbol(
             value, "AMS-Regular", mode, color, classes.concat(["amsrm"]));
+    }
+};
+
+/**
+ * Makes a symbol in the default font for mathords and textords.
+ */
+var mathDefault = function(value, mode, color, classes, type) {
+    if (type === "mathord") {
+        return mathit(value, mode, color, classes);
+    } else if (type === "textord") {
+        return makeSymbol(
+            value, "Main-Regular", mode, color, classes.concat(["mathrm"]));
+    } else {
+        throw new Error("unexpected type: " + type + " in mathDefault");
+    }
+};
+
+/**
+ * Makes a symbol in the italic math font.
+ */
+var mathit = function(value, mode, color, classes) {
+    if (fontMap.mathit.test(value)) {
+        return makeSymbol(
+            value, "Main-Italic", mode, color, classes.concat(["mainit"]));
+    } else {
+        return makeSymbol(
+            value, "Math-Italic", mode, color, classes.concat(["mathit"]));
+    }
+};
+
+/**
+ * Makes letters in normal roman and all other symbols in italic math.
+ */
+var mathrm = function(value, mode, color, classes, type) {
+    if (fontMap.mathrm.test(value)) {
+        return makeSymbol(value, "Main-Regular", mode, color, classes);
+    } else {
+        return mathDefault(value, mode, color, classes, type);
+    }
+};
+
+/**
+ * Makes letters in bold roman and all other symbols in italic math.
+ */
+var mathbf = function(value, mode, color, classes, type) {
+    if (fontMap.mathbf.test(value)) {
+        return makeSymbol(
+            value, "Main-Bold", mode, color, classes.concat(["mathbf"]));
+    } else {
+        return mathDefault(value, mode, color, classes, type);
+    }
+};
+
+/**
+ * Makes a symbol in the blackboard bold math font
+ */
+var mathbb = function(value, mode, color, classes, type) {
+    if (fontMap.mathbb.test(value)) {
+        return makeSymbol(
+            value, "AMS-Regular", mode, color, classes.concat(["amsrm"]));
+    } else {
+        return mathDefault(value, mode, color, classes, type);
+    }
+};
+
+/**
+ * Makes a symbol in the calligraphic font
+ */
+var mathcal = function(value, mode, color, classes, type) {
+    if (fontMap.mathcal.test(value)) {
+        return makeSymbol(
+            value, "Calligraphic-Regular", mode, color, classes.concat(["mathcal"]));
+    } else {
+        return mathDefault(value, mode, color, classes, type);
+    }
+};
+
+/**
+ * Makes a symbol in the fraktur font
+ */
+var mathfrak = function(value, mode, color, classes, type) {
+    if (fontMap.mathfrak.test(value)) {
+        return makeSymbol(
+            value, "Fraktur-Regular", mode, color, classes.concat(["mathfrak"]));
+    } else {
+        return mathDefault(value, mode, color, classes, type);
+    }
+};
+
+/**
+ * Makes a symbol in the typewriter font
+ */
+var mathtt = function(value, mode, color, classes, type) {
+    if (fontMap.mathtt.test(value)) {
+        return makeSymbol(
+            value, "Typewriter-Regular", mode, color, classes.concat(["mathtt"]));
+    } else {
+        return mathDefault(value, mode, color, classes, type);
+    }
+};
+
+/**
+ * Makes a symbol in the script font
+ */
+var mathscr = function(value, mode, color, classes, type) {
+    if (fontMap.mathscr.test(value)) {
+        return makeSymbol(
+            value, "Script-Regular", mode, color, classes.concat(["mathscr"]));
+    } else {
+        return mathDefault(value, mode, color, classes, type);
+    }
+};
+
+/**
+ * Makes a symbol in the sans-serif font
+ */
+var mathsf = function(value, mode, color, classes, type) {
+    if (fontMap.mathsf.test(value)) {
+        return makeSymbol(
+            value, "SansSerif-Regular", mode, color, classes.concat(["mathsf"]));
+    } else {
+        return mathDefault(value, mode, color, classes, type);
     }
 };
 
@@ -308,10 +424,110 @@ var spacingFunctions = {
     }
 };
 
+var greekCapitals = [
+    "\\Gamma",
+    "\\Delta",
+    "\\Theta",
+    "\\Lambda",
+    "\\Xi",
+    "\\Pi",
+    "\\Sigma",
+    "\\Upsilon",
+    "\\Phi",
+    "\\Psi",
+    "\\Omega"
+];
+
+/**
+ * Maps TeX font commands to objects containing:
+ * - variant: string used for "mathvariant" attribut in buildMathML.js
+ * - test: function acception mathord/textord value, returns true if the
+ *      variant or non-default font should be used.
+ */
+// A map between tex font commands an MathML mathvariant attribute values
+var fontMap = {
+    // styles
+    "mathbf": {
+        variant: "bold",
+        test: function(value) {
+            return /[a-zA-Z0-9]/.test(value.charAt(0));
+        }
+    },
+    "mathit": {
+        variant: "italic",
+        // All mathords and textords should be typeset using italics in \mathit.
+        // The test function has a special meaning in this case.  It determines
+        // which italics font to use when building an HTML layout and wheter or
+        // not to set mathvariant="italic" for MathML.
+        test: function(value) {
+            return /[0-9]/.test(value.charAt(0)) ||
+                utils.contains(["\\imath", "\\jmath"], value) ||
+                utils.contains(greekCapitals, value);
+        }
+    },
+    "mathrm": {
+        variant: "normal",
+        test: function(value) {
+            return /[a-zA-Z0-9]/.test(value.charAt(0));
+        }
+    },
+
+    // families
+    "mathbb": {
+        variant: "double-struck",
+        test: function(value) {
+            return/[A-Zk]/.test(value.charAt(0));
+        }
+    },
+    "mathcal": {
+        variant: "script",
+        test: function(value) {
+            return /[A-Z]/.test(value.charAt(0));
+        }
+    },
+    "mathfrak": {
+        variant: "fraktur",
+        test: function(value) {
+            return /[a-zA-Z0-9]/.test(value.charAt(0));
+        }
+    },
+    "mathscr": {
+        variant: "script",
+        test: function(value) {
+            return /[A-Z]/.test(value.charAt(0));
+        }
+    },
+    "mathsf": {
+        variant: "sans-serif",
+        test: function(value) {
+            // TODO(kevinb) update this when we implement unicode
+            return /[a-zA-Z0-9]/.test(value.charAt(0)) ||
+                utils.contains(greekCapitals, value);
+        }
+    },
+    "mathtt": {
+        variant: "monospace",
+        test: function(value) {
+            // TODO(kevinb) update this when we implement unicode
+            return /[a-zA-Z0-9]/.test(value.charAt(0)) ||
+                utils.contains(greekCapitals, value);
+        }
+    }
+};
+
 module.exports = {
     makeSymbol: makeSymbol,
+    fontMap: fontMap,
     mathit: mathit,
     mathrm: mathrm,
+    mathbf: mathbf,
+    mathbb: mathbb,
+    mathcal: mathcal,
+    mathfrak: mathfrak,
+    mathtt: mathtt,
+    mathscr: mathscr,
+    mathsf: mathsf,
+    mathsym: mathsym,
     makeSpan: makeSpan,
     makeFragment: makeFragment,
     makeVList: makeVList,

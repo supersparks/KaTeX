@@ -1116,6 +1116,148 @@ describe("A style change parser", function() {
     });
 });
 
+describe("A font parser", function () {
+    it("should parse \\mathrm, \\mathbb, and \\mathit", function () {
+        expect("\\mathrm x").toParse();
+        expect("\\mathbb x").toParse();
+        expect("\\mathit x").toParse();
+        expect("\\mathrm {x + 1}").toParse();
+        expect("\\mathbb {x + 1}").toParse();
+        expect("\\mathit {x + 1}").toParse();
+    });
+
+    it("should parse \\mathcal and \\mathfrak", function () {
+        expect("\\mathcal{ABC123}").toParse();
+        expect("\\mathfrak{abcABC123}").toParse();
+    });
+
+    it("should produce the correct fonts", function () {
+        var mathbbParse = parseTree("\\mathbb x")[0];
+        expect(mathbbParse.value.font).toMatch("mathbb");
+        expect(mathbbParse.value.type).toMatch("font");
+
+        var mathrmParse = parseTree("\\mathrm x")[0];
+        expect(mathrmParse.value.font).toMatch("mathrm");
+        expect(mathrmParse.value.type).toMatch("font");
+
+        var mathitParse = parseTree("\\mathit x")[0];
+        expect(mathitParse.value.font).toMatch("mathit");
+        expect(mathitParse.value.type).toMatch("font");
+
+        var mathcalParse = parseTree("\\mathcal C")[0];
+        expect(mathcalParse.value.font).toMatch("mathcal");
+        expect(mathcalParse.value.type).toMatch("font");
+
+        var mathfrakParse = parseTree("\\mathfrak C")[0];
+        expect(mathfrakParse.value.font).toMatch("mathfrak");
+        expect(mathfrakParse.value.type).toMatch("font");
+    });
+
+    it("should parse nested font commands", function () {
+        var nestedParse = parseTree("\\mathbb{R \\neq \\mathrm{R}}")[0];
+        expect(nestedParse.value.font).toMatch("mathbb");
+        expect(nestedParse.value.type).toMatch("font");
+
+        expect(nestedParse.value.body.value.length).toMatch(3);
+        var bbBody = nestedParse.value.body.value;
+        expect(bbBody[0].type).toMatch("mathord");
+        expect(bbBody[1].type).toMatch("rel");
+        expect(bbBody[2].type).toMatch("font");
+        expect(bbBody[2].value.font).toMatch("mathrm");
+        expect(bbBody[2].value.type).toMatch("font");
+    });
+
+    it("should work with \\color", function () {
+        var colorMathbbParse = parseTree("\\color{blue}{\\mathbb R}")[0];
+        expect(colorMathbbParse.value.type).toMatch("color");
+        expect(colorMathbbParse.value.color).toMatch("blue");
+        var body = colorMathbbParse.value.value;
+        expect(body.length).toMatch(1);
+        expect(body[0].value.type).toMatch("font");
+        expect(body[0].value.font).toMatch("mathbb");
+    });
+
+    it("should not parse a series of font commands", function () {
+        expect("\\mathbb \\mathrm R").toNotParse();
+    });
+});
+
+describe("An HTML font tree-builder", function () {
+    it("should render \\mathbb{R} with the correct font", function () {
+        var tree = parseTree("\\mathbb{R}");
+        var markup = buildHTML(tree, defaultSettings).toMarkup();
+        expect(markup).toContain("<span class=\"mord amsrm\">R</span>");
+    });
+
+    it("should render \\mathrm{R} with the correct font", function () {
+        var tree = parseTree("\\mathrm{R}");
+        var markup = buildHTML(tree, defaultSettings).toMarkup();
+        expect(markup).toContain("<span class=\"mord\">R</span>");
+    });
+
+    it("should render \\mathcal{R} with the correct font", function () {
+        var tree = parseTree("\\mathcal{R}");
+        var markup = buildHTML(tree, defaultSettings).toMarkup();
+        expect(markup).toContain("<span class=\"mord mathcal\">R</span>");
+    });
+
+    it("should render \\mathfrak{R} with the correct font", function () {
+        var tree = parseTree("\\mathfrak{R}");
+        var markup = buildHTML(tree, defaultSettings).toMarkup();
+        expect(markup).toContain("<span class=\"mord mathfrak\">R</span>");
+    });
+
+    it("should render a combination of font and color changes", function () {
+        var tree = parseTree("\\color{blue}{\\mathbb R}");
+        var markup = buildHTML(tree, defaultSettings).toMarkup();
+        var span = "<span class=\"mord amsrm\" style=\"color:blue;\">R</span>";
+        expect(markup).toContain(span);
+
+        tree = parseTree("\\mathbb{\\color{blue}{R}}");
+        markup = buildHTML(tree, defaultSettings).toMarkup();
+        span = "<span class=\"mord amsrm\" style=\"color:blue;\">R</span>";
+        expect(markup).toContain(span);
+    });
+});
+
+describe("A MathML font tree-builder", function () {
+    it("should render \\mathbb{R} with the correct font", function () {
+        var tree = parseTree("\\mathbb{R}");
+        var markup = buildMathML(tree, defaultSettings).toMarkup();
+        expect(markup).toContain('<mi mathvariant="double-struck">R</mi>');
+    });
+
+    it("should render \\mathrm{R} with the correct font", function () {
+        var tree = parseTree("\\mathrm{R}");
+        var markup = buildMathML(tree, defaultSettings).toMarkup();
+        expect(markup).toContain('<mi mathvariant="normal">R</mi>');
+    });
+
+    it("should render \\mathcal{R} with the correct font", function () {
+        var tree = parseTree("\\mathcal{R}");
+        var markup = buildMathML(tree, defaultSettings).toMarkup();
+        expect(markup).toContain('<mi mathvariant="script">R</mi>');
+    });
+
+    it("should render \\mathfrak{R} with the correct font", function () {
+        var tree = parseTree("\\mathfrak{R}");
+        var markup = buildMathML(tree, defaultSettings).toMarkup();
+        expect(markup).toContain('<mi mathvariant="fraktur">R</mi>');
+    });
+
+    it("should render a combination of font and color changes", function () {
+        var tree = parseTree("\\color{blue}{\\mathbb R}");
+        var markup = buildMathML(tree, defaultSettings).toMarkup();
+        var node = '<mstyle mathcolor="blue"><mi mathvariant="double-struck">R</mi></mstyle>';
+        expect(markup).toContain(node);
+
+        tree = parseTree("\\mathbb{\\color{blue}{R}}");
+        markup = buildMathML(tree, defaultSettings).toMarkup();
+        node = '<mstyle mathcolor="blue"><mi mathvariant="double-struck">R</mi></mstyle>';
+        expect(markup).toContain(node);
+    });
+});
+
 describe("A bin builder", function() {
     it("should create mbins normally", function() {
         var built = getBuilt("x + y");

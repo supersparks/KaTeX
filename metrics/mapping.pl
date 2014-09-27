@@ -256,6 +256,10 @@ $map{cmsy10} = {
   "Math-Italic" => [
     0x36 => 0x2F            # \not
   ],
+
+  "Calligraphic-Regular" => [
+    [0x41,0x5A] => 0x41,    # A-Z
+  ],
 };
 
 $map{cmex10} = {
@@ -941,6 +945,52 @@ $map{msbm10} = {
     0x7D => 0x210F,         # \hslash
     0x7E => 0x0127,         # \hbar
     0x7F => 0x220D,         # \backepsilon
+  ],
+};
+
+$map{eufm10} = {
+  "Fraktur-Regular" => [
+    [0x30,0x39] => 0x30,    # 0-9
+    [0x41,0x5A] => 0x41,    # A-Z
+    [0x61,0x7A] => 0x61,    # a-z
+  ],
+};
+
+$map{cmtt10} = {
+  "Typewriter-Regular" => [
+    [0x30,0x39] => 0x30,    # 0-9
+    [0x41,0x5A] => 0x41,    # A-Z
+    [0x61,0x7A] => 0x61,    # a-z
+    [0,1] => 0x393,         # \Gamma, \Delta
+    2 => 0x398,             # \Theta
+    3 => 0x39B,             # \Lambda
+    4 => 0x39E,             # \Xi
+    5 => 0x3A0,             # \Pi
+    6 => 0x3A3,             # \Sigma
+    [7,8] => 0x3A5,         # \Upsilon, \Phi
+    [9,0xA] => 0x3A8,       # \Psi, \Omega
+  ],
+};
+
+$map{rsfs10} = {
+  "Script-Regular" => [
+    [0x41,0x5A] => 0x41,    # A-Z
+  ],
+};
+
+$map{cmss10} = {
+  "SansSerif-Regular" => [
+    [0x30,0x39] => 0x30,    # 0-9
+    [0x41,0x5A] => 0x41,    # A-Z
+    [0x61,0x7A] => 0x61,    # a-z
+    [0,1] => 0x393,         # \Gamma, \Delta
+    2 => 0x398,             # \Theta
+    3 => 0x39B,             # \Lambda
+    4 => 0x39E,             # \Xi
+    5 => 0x3A0,             # \Pi
+    6 => 0x3A3,             # \Sigma
+    [7,8] => 0x3A5,         # \Upsilon, \Phi
+    [9,0xA] => 0x3A8,       # \Psi, \Omega
   ],
 };
 

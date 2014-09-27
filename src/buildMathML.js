@@ -6,10 +6,14 @@
 
 var buildCommon = require("./buildCommon");
 var mathMLTree = require("./mathMLTree");
+var Options = require("./Options");
 var ParseError = require("./ParseError");
+var Settings = require("../src/Settings");
+var Style = require("./Style");
 var symbols = require("./symbols");
 
 var makeSpan = buildCommon.makeSpan;
+var fontMap = buildCommon.fontMap;
 
 /**
  * Takes a symbol and converts it into a MathML text node after performing
@@ -28,23 +32,38 @@ var makeText = function(text, mode) {
  * tree. Each function should take a parse group and return a MathML node.
  */
 var groupTypes = {
-    mathord: function(group) {
+    mathord: function(group, options) {
         var node = new mathMLTree.MathNode(
             "mi",
             [makeText(group.value, group.mode)]);
 
+        if (options.font) {
+            if (fontMap[options.font].test(group.value)) {
+                node.setAttribute("mathvariant", fontMap[options.font].variant);
+            }
+        }
         return node;
     },
 
-    textord: function(group) {
+    textord: function(group, options) {
         var text = makeText(group.value, group.mode);
+
+        var variant = "normal";
+        if (options.font) {
+            if (fontMap[options.font].test(group.value)) {
+                variant = fontMap[options.font].variant;
+            }
+        }
 
         var node;
         if (/[0-9]/.test(group.value)) {
             node = new mathMLTree.MathNode("mn", [text]);
+            if (options.font) {
+                node.setAttribute("mathvariant", variant);
+            }
         } else {
             node = new mathMLTree.MathNode("mi", [text]);
-            node.setAttribute("mathvariant", "normal");
+            node.setAttribute("mathvariant", variant);
         }
 
         return node;
@@ -94,24 +113,24 @@ var groupTypes = {
         return node;
     },
 
-    ordgroup: function(group) {
-        var inner = buildExpression(group.value);
+    ordgroup: function(group, options) {
+        var inner = buildExpression(group.value, options);
 
         var node = new mathMLTree.MathNode("mrow", inner);
 
         return node;
     },
 
-    text: function(group) {
-        var inner = buildExpression(group.value.body);
+    text: function(group, options) {
+        var inner = buildExpression(group.value.body, options);
 
         var node = new mathMLTree.MathNode("mtext", inner);
 
         return node;
     },
 
-    color: function(group) {
-        var inner = buildExpression(group.value.value);
+    color: function(group, options) {
+        var inner = buildExpression(group.value.value, options);
 
         var node = new mathMLTree.MathNode("mstyle", inner);
 
@@ -120,15 +139,15 @@ var groupTypes = {
         return node;
     },
 
-    supsub: function(group) {
-        var children = [buildGroup(group.value.base)];
+    supsub: function(group, options) {
+        var children = [buildGroup(group.value.base, options)];
 
         if (group.value.sub) {
-            children.push(buildGroup(group.value.sub));
+            children.push(buildGroup(group.value.sub, options));
         }
 
         if (group.value.sup) {
-            children.push(buildGroup(group.value.sup));
+            children.push(buildGroup(group.value.sup, options));
         }
 
         var nodeType;
@@ -145,11 +164,11 @@ var groupTypes = {
         return node;
     },
 
-    genfrac: function(group) {
+    genfrac: function(group, options) {
         var node = new mathMLTree.MathNode(
             "mfrac",
-            [buildGroup(group.value.numer),
-             buildGroup(group.value.denom)]);
+            [buildGroup(group.value.numer, options),
+             buildGroup(group.value.denom, options)]);
 
         if (!group.value.hasBarLine) {
             node.setAttribute("linethickness", "0px");
@@ -186,35 +205,35 @@ var groupTypes = {
         return node;
     },
 
-    array: function(group) {
+    array: function(group, options) {
         return new mathMLTree.MathNode(
             "mtable", group.value.body.map(function(row) {
                 return new mathMLTree.MathNode(
                     "mtr", row.map(function(cell) {
                         return new mathMLTree.MathNode(
-                            "mtd", [buildGroup(cell)]);
+                            "mtd", [buildGroup(cell, options)]);
                     }));
             }));
     },
 
-    sqrt: function(group) {
+    sqrt: function(group, options) {
         var node;
         if (group.value.index) {
             node = new mathMLTree.MathNode(
                 "mroot", [
-                    buildGroup(group.value.body),
-                    buildGroup(group.value.index)
+                    buildGroup(group.value.body, options),
+                    buildGroup(group.value.index, options)
                 ]);
         } else {
             node = new mathMLTree.MathNode(
-                "msqrt", [buildGroup(group.value.body)]);
+                "msqrt", [buildGroup(group.value.body, options)]);
         }
 
         return node;
     },
 
-    leftright: function(group) {
-        var inner = buildExpression(group.value.body);
+    leftright: function(group, options) {
+        var inner = buildExpression(group.value.body, options);
 
         if (group.value.left !== ".") {
             var leftNode = new mathMLTree.MathNode(
@@ -239,13 +258,13 @@ var groupTypes = {
         return outerNode;
     },
 
-    accent: function(group) {
+    accent: function(group, options) {
         var accentNode = new mathMLTree.MathNode(
             "mo", [makeText(group.value.accent, group.mode)]);
 
         var node = new mathMLTree.MathNode(
             "mover",
-            [buildGroup(group.value.base),
+            [buildGroup(group.value.base, options),
              accentNode]);
 
         node.setAttribute("accent", "true");
@@ -298,6 +317,12 @@ var groupTypes = {
         return node;
     },
 
+    font: function(group, options) {
+        var font = group.value.font;
+        var node = buildGroup(group.value.body, options.withFont(font));
+        return node;
+    },
+
     delimsizing: function(group) {
         var children = [];
 
@@ -321,8 +346,8 @@ var groupTypes = {
         return node;
     },
 
-    styling: function(group) {
-        var inner = buildExpression(group.value.value, inner);
+    styling: function(group, options) {
+        var inner = buildExpression(group.value.value, options);
 
         var node = new mathMLTree.MathNode("mstyle", inner);
 
@@ -341,28 +366,30 @@ var groupTypes = {
         return node;
     },
 
-    sizing: function(group) {
-        var inner = buildExpression(group.value.value);
+    sizing: function(group, options) {
+        var inner = buildExpression(group.value.value, options);
 
         var node = new mathMLTree.MathNode("mstyle", inner);
 
         // TODO(emily): This doesn't produce the correct size for nested size
         // changes, because we don't keep state of what style we're currently
-        // in, so we can't reset the size to normal before changing it.
+        // in, so we can't reset the size to normal before changing it.  Now
+        // that we're passing an options parameter we should be able to fix
+        // this.
         node.setAttribute(
             "mathsize", buildCommon.sizingMultiplier[group.value.size] + "em");
 
         return node;
     },
 
-    overline: function(group) {
+    overline: function(group, options) {
         var operator = new mathMLTree.MathNode(
             "mo", [new mathMLTree.TextNode("\u203e")]);
         operator.setAttribute("stretchy", "true");
 
         var node = new mathMLTree.MathNode(
             "mover",
-            [buildGroup(group.value.body),
+            [buildGroup(group.value.body, options),
              operator]);
         node.setAttribute("accent", "true");
 
@@ -377,9 +404,9 @@ var groupTypes = {
         return node;
     },
 
-    llap: function(group) {
+    llap: function(group, options) {
         var node = new mathMLTree.MathNode(
-            "mpadded", [buildGroup(group.value.body)]);
+            "mpadded", [buildGroup(group.value.body, options)]);
 
         node.setAttribute("lspace", "-1width");
         node.setAttribute("width", "0px");
@@ -387,9 +414,9 @@ var groupTypes = {
         return node;
     },
 
-    rlap: function(group) {
+    rlap: function(group, options) {
         var node = new mathMLTree.MathNode(
-            "mpadded", [buildGroup(group.value.body)]);
+            "mpadded", [buildGroup(group.value.body, options)]);
 
         node.setAttribute("width", "0px");
 
@@ -397,7 +424,7 @@ var groupTypes = {
     },
 
     phantom: function(group, options, prev) {
-        var inner = buildExpression(group.value.value);
+        var inner = buildExpression(group.value.value, options);
         return new mathMLTree.MathNode("mphantom", inner);
     }
 };
@@ -407,11 +434,11 @@ var groupTypes = {
  * MathML nodes. A little simpler than the HTML version because we don't do any
  * previous-node handling.
  */
-var buildExpression = function(expression) {
+var buildExpression = function(expression, options) {
     var groups = [];
     for (var i = 0; i < expression.length; i++) {
         var group = expression[i];
-        groups.push(buildGroup(group));
+        groups.push(buildGroup(group, options));
     }
     return groups;
 };
@@ -420,14 +447,14 @@ var buildExpression = function(expression) {
  * Takes a group from the parser and calls the appropriate groupTypes function
  * on it to produce a MathML node.
  */
-var buildGroup = function(group) {
+var buildGroup = function(group, options) {
     if (!group) {
         return new mathMLTree.MathNode("mrow");
     }
 
     if (groupTypes[group.type]) {
         // Call the groupTypes function
-        return groupTypes[group.type](group);
+        return groupTypes[group.type](group, options);
     } else {
         throw new ParseError(
             "Got group of unknown type: '" + group.type + "'");
@@ -443,7 +470,20 @@ var buildGroup = function(group) {
  * we can do appropriate styling.
  */
 var buildMathML = function(tree, texExpression, settings) {
-    var expression = buildExpression(tree);
+    settings = settings || new Settings({});
+
+    var startStyle = Style.TEXT;
+    if (settings.displayMode) {
+        startStyle = Style.DISPLAY;
+    }
+
+    // Setup the default options
+    var options = new Options({
+        style: startStyle,
+        size: "size5"
+    });
+
+    var expression = buildExpression(tree, options);
 
     // Wrap up the expression in an mrow so it is presented in the semantics
     // tag correctly.
