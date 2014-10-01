@@ -142,6 +142,11 @@ var symbols = {
             group: "textord",
             replace: "\u2205"
         },
+        "\\not": {
+            font: "main",
+            group: "rel",
+            replace: "\u0338"
+        },
         "\\alpha": {
             font: "main",
             group: "mathord",

@@ -164,6 +164,17 @@ var functions = {
                 type: "katex"
             };
         }
+    },
+
+    // Negates relational operators
+    "\\not": {
+        numArgs: 1,
+        handler: function(func, body) {
+            return {
+                type: "not",
+                body: body
+            };
+        }
     }
 };
 

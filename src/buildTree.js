@@ -755,6 +755,14 @@ var groupTypes = {
         return makeSpan(["overline", "mord"], [vlist], options.getColor());
     },
 
+    not: function(group, options, prev) {
+        var inner = buildGroup(group.value.body, options);
+        var not = buildCommon.mathrm(
+            "\\not", group.mode, options.getColor(), ["mrel"]);
+
+        return makeSpan(["mord mrel"], [inner, not]);
+    },
+
     sqrt: function(group, options, prev) {
         // Square roots are handled in the TeXbook pg. 443, Rule 11.
 
