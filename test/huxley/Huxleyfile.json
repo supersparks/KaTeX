@@ -192,6 +192,12 @@
     },
 
     {
+        "name": "Not",
+        "screenSize": [1024, 768],
+        "url": "http://localhost:7936/test/huxley/test.html?m=\\not%3D\\not%3E\\not\\geq\\not\\in\\not%3C\\not\\leq"
+    },
+
+    {
         "name": "Accents",
         "screenSize": [1024, 768],
         "url": "http://localhost:7936/test/huxley/test.html?m=\\vec{A}\\vec{x}\\vec x^2\\vec{x}_2^2\\vec{A}^2\\vec{xA}^2"
