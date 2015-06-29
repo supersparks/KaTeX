@@ -1224,36 +1224,40 @@ describe("A MathML font tree-builder", function () {
     it("should render \\mathbb{R} with the correct font", function () {
         var tree = parseTree("\\mathbb{R}");
         var markup = buildMathML(tree, defaultSettings).toMarkup();
-        expect(markup).toContain('<mi mathvariant="double-struck">R</mi>');
+        expect(markup).toContain("<mi mathvariant=\"double-struck\">R</mi>");
     });
 
     it("should render \\mathrm{R} with the correct font", function () {
         var tree = parseTree("\\mathrm{R}");
         var markup = buildMathML(tree, defaultSettings).toMarkup();
-        expect(markup).toContain('<mi mathvariant="normal">R</mi>');
+        expect(markup).toContain("<mi mathvariant=\"normal\">R</mi>");
     });
 
     it("should render \\mathcal{R} with the correct font", function () {
         var tree = parseTree("\\mathcal{R}");
         var markup = buildMathML(tree, defaultSettings).toMarkup();
-        expect(markup).toContain('<mi mathvariant="script">R</mi>');
+        expect(markup).toContain("<mi mathvariant=\"script\">R</mi>");
     });
 
     it("should render \\mathfrak{R} with the correct font", function () {
         var tree = parseTree("\\mathfrak{R}");
         var markup = buildMathML(tree, defaultSettings).toMarkup();
-        expect(markup).toContain('<mi mathvariant="fraktur">R</mi>');
+        expect(markup).toContain("<mi mathvariant=\"fraktur\">R</mi>");
     });
 
     it("should render a combination of font and color changes", function () {
         var tree = parseTree("\\color{blue}{\\mathbb R}");
         var markup = buildMathML(tree, defaultSettings).toMarkup();
-        var node = '<mstyle mathcolor="blue"><mi mathvariant="double-struck">R</mi></mstyle>';
+        var node = "<mstyle mathcolor=\"blue\">" +
+            "<mi mathvariant=\"double-struck\">R</mi>" +
+            "</mstyle>";
         expect(markup).toContain(node);
 
         tree = parseTree("\\mathbb{\\color{blue}{R}}");
         markup = buildMathML(tree, defaultSettings).toMarkup();
-        node = '<mstyle mathcolor="blue"><mi mathvariant="double-struck">R</mi></mstyle>';
+        node = "<mstyle mathcolor=\"blue\">" +
+            "<mi mathvariant=\"double-struck\">R</mi>" +
+            "</mstyle>";
         expect(markup).toContain(node);
     });
 });
