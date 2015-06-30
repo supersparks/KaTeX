@@ -17,6 +17,23 @@
 
 var symbols = {
     "math": {
+        "\\pound": {
+            font: "main",
+            group: "textord",
+            replace: "£"
+        },
+        "\\euro": {
+            font: "main",
+            group: "textord",
+            replace: "€"
+        },
+        "\\gap": {
+            font: "main",
+            group: "textord",
+            replace: "_"
+        },
+
+
         // Relation Symbols
         "\\equiv": {
             font: "main",
