@@ -1,5 +1,5 @@
 {
-  "name": "katex",
+  "name": "spx-katex",
   "version": "0.6.0-pre",
   "description": "Fast math typesetting for the web.",
   "main": "katex.js",
