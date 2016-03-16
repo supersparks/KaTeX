@@ -47,11 +47,11 @@ function preprocessText(text) {
 
 function renderMathToString(math) {
     math = replaceUnicodeInMath(math)
-               .replace(/\\degrees/g, '^\\circ')
+               .replace(/\\degrees/g, '^\\circ ')
                .replace('\\bold', '\\mathbf ')
                .replace(vectorPattern, '{$1 \\choose $2}')
                .replace(unitsPattern, '$1\\,$2')
-               .replace(manySpacesPattern, '\\qquad')
+               .replace(manySpacesPattern, '\\qquad ')
                .replace(threeOrMoreUnderscoresPattern, '\\rule{2em}{0.01em}')
                .replace(twoUnderscoresPattern, '\\rule{1em}{0.01em}')
                .replace(numberCommaPattern, '$1\\!\\!');
