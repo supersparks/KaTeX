@@ -13,10 +13,7 @@ mydist: build/katex
 # Export these variables for use in contrib Makefiles
 export BUILDDIR = $(realpath build)
 export BROWSERIFY = $(realpath ./node_modules/.bin/browserify)
-export UGLIFYJS = $(realpath ./node_modules/.bin/uglifyjs) \
-    --mangle \
-    --beautify \
-    ascii_only=true,beautify=false
+export UGLIFYJS = $(realpath ./node_modules/.bin/uglifyjs) --mangle --beautify ascii_only=true,beautify=false
 
 setup:
 	npm install
