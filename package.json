@@ -13,7 +13,9 @@
     "src/",
       "dist/",
       "static/",
-      "Makefile"
+      "Makefile",
+      "server.js",
+      "contrib/"
   ],
   "license": "MIT",
   "devDependencies": {
