@@ -14,9 +14,9 @@ mydist: build/katex
 export BUILDDIR = $(realpath build)
 export BROWSERIFY = $(realpath ./node_modules/.bin/browserify)
 export UGLIFYJS = $(realpath ./node_modules/.bin/uglifyjs) \
-	--mangle \
-	--beautify \
-	ascii_only=true,beautify=false
+    --mangle \
+    --beautify \
+    ascii_only=true,beautify=false
 
 setup:
 	npm install
