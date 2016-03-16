@@ -5,13 +5,15 @@
   "main": "katex.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/Khan/KaTeX.git"
+    "url": "https://github.com/supersparks/KaTeX.git"
   },
   "files": [
     "katex.js",
     "cli.js",
     "src/",
-    "dist/"
+      "dist/",
+      "static/",
+      "Makefile"
   ],
   "license": "MIT",
   "devDependencies": {
@@ -33,7 +35,7 @@
   "bin": "cli.js",
   "scripts": {
     "test": "make lint test",
-    "prepublish": "make dist"
+      "prepublish": "make dist"
   },
   "dependencies": {
     "match-at": "^0.1.0"
