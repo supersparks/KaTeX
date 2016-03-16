@@ -1,6 +1,6 @@
 /* eslint no-console:0 */
 
-var renderToString = require('./render');
+var renderToString = require('./render').renderToString;
 var htmlEscape = require('html-escape');
 
 /* eslint-disable */
