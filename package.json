@@ -11,11 +11,11 @@
     "katex.js",
     "cli.js",
     "src/",
-      "dist/",
       "static/",
       "Makefile",
       "server.js",
-      "contrib/"
+      "contrib/",
+      "build/"
   ],
   "license": "MIT",
   "devDependencies": {
