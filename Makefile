@@ -1,9 +1,14 @@
-.PHONY: build dist lint setup copy serve clean metrics test zip contrib
+.PHONY: build dist lint setup copy serve clean metrics test zip contrib mybuild
+
 build: lint build/katex.min.js build/katex.min.css contrib zip compress
 
 dist: build
 	rm -rf dist/
 	cp -R build/katex/ dist/
+
+mydist: build/katex
+	rm -rf dist/
+	cp -R build/katex dist/
 
 # Export these variables for use in contrib Makefiles
 export BUILDDIR = $(realpath build)

@@ -19,8 +19,6 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "browserify": "^10.2.4",
-    "clean-css": "~2.2.15",
     "eslint": "^1.10.2",
     "express": "~3.3.3",
     "glob": "^5.0.15",
@@ -28,19 +26,21 @@
     "jasmine-core": "^2.3.4",
     "js-yaml": "^3.3.1",
     "jspngopt": "^0.1.0",
-    "less": "~1.7.5",
     "nomnom": "^1.8.1",
     "pako": "0.2.7",
-    "selenium-webdriver": "^2.46.1",
-    "uglify-js": "~2.4.15"
+    "selenium-webdriver": "^2.46.1"
   },
   "bin": "cli.js",
   "scripts": {
     "test": "make lint test",
       "prepublish": "make dist",
-      "install": "make"
+      "install": "make mydist"
   },
   "dependencies": {
-    "match-at": "^0.1.0"
+      "match-at": "^0.1.0",
+      "browserify": "^10.2.4",
+      "uglify-js": "~2.4.15",
+      "less": "~1.7.5",
+      "clean-css": "~2.2.15"
   }
 }
