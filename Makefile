@@ -12,6 +12,7 @@ mydist: build/katex
 
 # Export these variables for use in contrib Makefiles
 export BUILDDIR = $(realpath build)
+export PATH := $(PATH):$(realpath node_modules/.bin):$(realpath ../.bin)
 export BROWSERIFY = browserify
 export UGLIFYJS = uglifyjs --mangle --beautify ascii_only=true,beautify=false
 
@@ -35,6 +36,7 @@ build/katex.min.css: build/katex.less.css
 
 .PHONY: build/fonts
 build/fonts:
+	@echo $$PATH
 	rm -rf $@
 	mkdir $@
 	for font in $(shell grep "font" static/katex.less | grep -o "KaTeX_\w\+" | cut -d" " -f 2 | sort | uniq); do \
