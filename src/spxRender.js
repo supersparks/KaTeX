@@ -61,6 +61,9 @@ function renderMathToString(math) {
 
 function renderMixedTextToString(text, suppressWarnings) {
     var bits = text.match(/\$|(?:\\.|[^$])+/g);
+    if (bits === null) {
+        return '';
+    }
     var isMath = false;
     for (var i = 0; i < bits.length; i++) {
         var bit = bits[i];
