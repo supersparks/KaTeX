@@ -14,6 +14,7 @@ module.exports = {
     __parse: render.generateParseTree,
     ParseError: render.ParseError,
     spxPreprocessText: spxRender.preprocessText,
+    spxPreprocessMath: spxRender.preprocessMath,
     spxRenderMathToString: spxRender.renderMathToString,
     spxRenderMixedTextToString: spxRender.renderMixedTextToString,
 };

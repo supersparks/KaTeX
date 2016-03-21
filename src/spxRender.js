@@ -11,7 +11,7 @@ var htmlEscape = require('html-escape');
 var mathlabelCmds =/\\(pound|euro|yen|times|div|degrees|pi|neq|leq|geq|propto|pm)(?=\w)/g;
 var textitPattern = /\\textit{(([^}$]|\$[^$]*\$)*?)}/g;
 var textbfPattern = /\\textbf{(([^}$]|\$[^$]*\$)*?)}/g;
-var backslashNCommands = /(\\n)(?!otin)/g;
+var backslashNCommands = /(\\n)(?!eq|otin)/g;
 var boldPattern = /\$\\bold{(([^}$]|\$[^$]*\$)*?)}\$/g;
 
 /*
@@ -27,37 +27,38 @@ var numberCommaPattern = /(\d,)(?=\d\d\d)/g;
 
 /* eslint-enable */
 
-function replaceUnicodeInMath(math) {
-    return math.replace('\u2212', '-')
-               .replace('\u2026', '\\ldots')
-               .replace('\u00b0', '\\degrees ')
-               .replace('\u00a3', '\\pound ')
-               .replace('\u00d7', '\\times ');
-}
-
 function preprocessText(text) {
     return text.replace(mathlabelCmds, '\\$1 ')
-               .replace('%', '\\%')
+               .replace(/%/g, '\\%')
                .replace(textitPattern, '<i>$1</i>')
                .replace(textbfPattern, '<b>$1</b>')
                .replace(backslashNCommands, '<br/>')
                .replace(boldPattern, '<b>$1</b>');
 }
 
+function replaceUnicodeInMath(math) {
+    return math.replace(/\u2212/g, '-')
+               .replace(/\u2026/g, '\\ldots')
+               .replace(/\u00b0/g, '\\degrees ')
+               .replace(/\u00a3/g, '\\pound ')
+               .replace(/\u00d7/g, '\\times ');
+}
 
-function renderMathToString(math) {
-    math = replaceUnicodeInMath(math)
-               .replace(/\\degrees/g, '^\\circ ')
-               .replace('\\bold', '\\mathbf ')
+function preprocessMath(math) {
+    return replaceUnicodeInMath(math)
+               .replace(/\\degrees/g, '^\\circ')
+               .replace('\\bold', '\\mathbf')
                .replace(vectorPattern, '{$1 \\choose $2}')
                .replace(unitsPattern, '$1\\,$2')
                .replace(manySpacesPattern, '\\qquad ')
                .replace(threeOrMoreUnderscoresPattern, '\\rule{2em}{0.01em}')
                .replace(twoUnderscoresPattern, '\\rule{1em}{0.01em}')
                .replace(numberCommaPattern, '$1\\!\\!');
-    return renderToString(math);
 }
 
+function renderMathToString(math) {
+    return renderToString(preprocessMath(math));
+}
 
 function renderMixedTextToString(text, suppressWarnings) {
     var bits = text.match(/\$|(?:\\.|[^$])+/g);
@@ -91,6 +92,7 @@ function renderMixedTextToString(text, suppressWarnings) {
 
 module.exports = {
     preprocessText: preprocessText,
+    preprocessMath: preprocessMath,
     renderMathToString: renderMathToString,
     renderMixedTextToString: renderMixedTextToString,
 };
