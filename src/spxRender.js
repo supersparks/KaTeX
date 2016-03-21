@@ -27,13 +27,16 @@ var numberCommaPattern = /(\d,)(?=\d\d\d)/g;
 
 /* eslint-enable */
 
-function preprocessText(text) {
-    return text.replace(mathlabelCmds, '\\$1 ')
+function preprocessText(text, ignoreNewLines) {
+    text = text.replace(mathlabelCmds, '\\$1 ')
                .replace(/%/g, '\\%')
                .replace(textitPattern, '<i>$1</i>')
                .replace(textbfPattern, '<b>$1</b>')
-               .replace(backslashNCommands, '<br/>')
                .replace(boldPattern, '<b>$1</b>');
+    if (!ignoreNewLines) {
+        text = text.replace(backslashNCommands, '<br/>');
+    }
+    return text;
 }
 
 function replaceUnicodeInMath(math) {
