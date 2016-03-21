@@ -35,13 +35,16 @@ function replaceUnicodeInMath(math) {
                .replace('\u00d7', '\\times ');
 }
 
-function preprocessText(text) {
-    return text.replace(mathlabelCmds, '\\$1 ')
+function preprocessText(text, ignoreNewlines) {
+    var r = text.replace(mathlabelCmds, '\\$1 ')
                .replace('%', '\\%')
                .replace(textitPattern, '<i>$1</i>')
                .replace(textbfPattern, '<b>$1</b>')
-               .replace(backslashNCommands, '<br/>')
                .replace(boldPattern, '<b>$1</b>');
+    if (!ignoreNewlines) {
+      r = r.replace(backslashNCommands, '<br/>');
+    }
+    return r;
 }
 
 
