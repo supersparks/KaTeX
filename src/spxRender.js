@@ -29,7 +29,6 @@ var numberCommaPattern = /(\d,)(?=\d\d\d)/g;
 
 function preprocessText(text, ignoreNewLines) {
     text = text.replace(mathlabelCmds, '\\$1 ')
-               .replace(/%/g, '\\%')
                .replace(textitPattern, '<i>$1</i>')
                .replace(textbfPattern, '<b>$1</b>')
                .replace(boldPattern, '<b>$1</b>');
@@ -56,7 +55,8 @@ function preprocessMath(math) {
                .replace(manySpacesPattern, '\\qquad ')
                .replace(threeOrMoreUnderscoresPattern, '\\rule{2em}{0.01em}')
                .replace(twoUnderscoresPattern, '\\rule{1em}{0.01em}')
-               .replace(numberCommaPattern, '$1\\!\\!');
+               .replace(numberCommaPattern, '$1\\!\\!')
+               .replace(/%/g, '\\%');
 }
 
 function renderMathToString(math) {
