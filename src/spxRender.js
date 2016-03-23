@@ -104,7 +104,7 @@ function renderMathInElement(elem) {
             text = preprocessText(text);
             var math = renderMixedTextToString(text);
             var frag = document.createElement('span');
-            frag.innerHtml = math;
+            frag.innerHTML = math;
             i += frag.childNodes.length - 1;
             elem.replaceChild(frag, childNode);
         } else if (childNode.nodeType === 1) {
