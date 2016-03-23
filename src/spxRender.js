@@ -54,7 +54,8 @@ function preprocessMath(math) {
                .replace(threeOrMoreUnderscoresPattern, '\\rule{2em}{0.01em}')
                .replace(twoUnderscoresPattern, '\\rule{1em}{0.01em}')
                .replace(numberCommaPattern, '$1\\!\\!')
-               .replace(/%/g, '\\%');
+               .replace(/([^\\]|^)%/g, '$1\\%')
+               .replace(/-(?! )/, '- ');
 }
 
 function renderMathToString(math) {
