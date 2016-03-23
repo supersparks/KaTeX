@@ -54,8 +54,9 @@ function preprocessMath(math) {
                .replace(threeOrMoreUnderscoresPattern, '\\rule{2em}{0.01em}')
                .replace(twoUnderscoresPattern, '\\rule{1em}{0.01em}')
                .replace(numberCommaPattern, '$1\\!\\!')
-               .replace(/([^\\]|^)%/g, '$1\\%')
-               .replace(/-(?! )/, '- ');
+               .replace(/([^\\]|^)%/g, '$1\\%');
+               // see https://github.com/Khan/KaTeX/issues/433
+               //.replace(/-(?! )/, '- '); not needed hopefully because of local fix
 }
 
 function renderMathToString(math) {
