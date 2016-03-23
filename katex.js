@@ -17,4 +17,5 @@ module.exports = {
     spxPreprocessMath: spxRender.preprocessMath,
     spxRenderMathToString: spxRender.renderMathToString,
     spxRenderMixedTextToString: spxRender.renderMixedTextToString,
+    spxRenderMathInElement: spxRender.renderMathInElement,
 };

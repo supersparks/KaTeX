@@ -93,9 +93,38 @@ function renderMixedTextToString(text, suppressWarnings) {
     return bits.join('');
 }
 
+function renderMathInElement(elem) {
+    var ignoredTags = [
+        "script", "noscript", "style", "textarea", "pre", "code",
+    ];
+    for (var i = 0; i < elem.childNodes.length; i++) {
+        var childNode = elem.childNodes[i];
+        if (childNode.nodeType === 3) {
+            // Text node
+            var text = childNode.textContent;
+            text = preprocessText(text);
+            var math = renderMixedTextToString(text);
+            var frag = document.createElement('span');
+            frag.innerHTML = math;
+            i += frag.childNodes.length - 1;
+            elem.replaceChild(frag, childNode);
+        } else if (childNode.nodeType === 1) {
+            // Element node
+            var shouldRender = ignoredTags.indexOf(
+                childNode.nodeName.toLowerCase()) === -1;
+
+            if (shouldRender) {
+                renderMathInElement(childNode);
+            }
+        }
+        // Otherwise, it's something else, and ignore it.
+    }
+}
+
 module.exports = {
     preprocessText: preprocessText,
     preprocessMath: preprocessMath,
     renderMathToString: renderMathToString,
     renderMixedTextToString: renderMixedTextToString,
+    renderMathInElement: renderMathInElement,
 };
