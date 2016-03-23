@@ -56,7 +56,8 @@ function preprocessMath(math) {
                .replace(numberCommaPattern, '$1\\!\\!')
                .replace(/([^\\]|^)%/g, '$1\\%');
                // see https://github.com/Khan/KaTeX/issues/433
-               //.replace(/-(?! )/, '- '); not needed hopefully because of local fix
+               // following not needed hopefully because of local fix:
+               //.replace(/-(?! )/, '- ');
 }
 
 function renderMathToString(math) {
