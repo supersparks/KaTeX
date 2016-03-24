@@ -105,8 +105,15 @@ function renderMathInElement(elem) {
             var text = childNode.textContent;
             text = preprocessText(text);
             var math = renderMixedTextToString(text);
-            var frag = document.createElement('span');
-            frag.innerHTML = math;
+            // Make a temporary span to render the content
+            var s = document.createElement('span');
+            s.innerHTML = math;
+            // Copy the spans children to make a document fragment
+            var frag = document.createDocumentFragment();
+            while (s.childNodes.length) {
+                frag.appendChild(s.childNodes[0]);
+            }
+            // replace the text node with the document fragment
             i += frag.childNodes.length - 1;
             elem.replaceChild(frag, childNode);
         } else if (childNode.nodeType === 1) {
