@@ -12,6 +12,7 @@ var mathlabelCmds =/\\(pound|euro|yen|times|div|degrees|pi|neq|leq|geq|propto|pm
 var textitPattern = /\\textit{(([^}$]|\$[^$]*\$)*?)}/g;
 var textbfPattern = /\\textbf{(([^}$]|\$[^$]*\$)*?)}/g;
 var backslashNCommands = /(\\n)(?!eq|otin)/g;
+var newLinePattern = /\n/g;
 
 /*
  * Maths specific patterns
@@ -31,7 +32,8 @@ function preprocessText(text, ignoreNewLines) {
                .replace(textitPattern, '<i>$1</i>')
                .replace(textbfPattern, '<b>$1</b>');
     if (!ignoreNewLines) {
-        text = text.replace(backslashNCommands, '<br/>');
+        text = text.replace(backslashNCommands, '<br/>')
+                   .replace(newLinePattern, '<br/>');
     }
     return text;
 }
