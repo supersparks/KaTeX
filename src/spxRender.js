@@ -90,13 +90,13 @@ function renderMixedTextToString(text, suppressWarnings) {
                 }
             }
         } else {
-            bits[i] = bit.replace("\\$", "$");
+            bits[i] = htmlEscape(bit.replace("\\$", "$"));
         }
     }
     return bits.join('');
 }
 
-function renderMathInElement(elem) {
+function renderMathInElement(elem, ignoreNewLines, suppressWarnings) {
     var ignoredTags = [
         "script", "noscript", "style", "textarea", "pre", "code",
     ];
@@ -105,8 +105,8 @@ function renderMathInElement(elem) {
         if (childNode.nodeType === 3) {
             // Text node
             var text = childNode.textContent;
-            text = preprocessText(text);
-            var math = renderMixedTextToString(text);
+            text = preprocessText(text, ignoreNewLines);
+            var math = renderMixedTextToString(text, suppressWarnings);
             // Make a temporary span to render the content
             var s = document.createElement('span');
             s.innerHTML = math;
@@ -124,7 +124,9 @@ function renderMathInElement(elem) {
                 childNode.nodeName.toLowerCase()) === -1;
 
             if (shouldRender) {
-                renderMathInElement(childNode);
+                renderMathInElement(
+                    childNode, ignoreNewLines, suppressWarnings
+                );
             }
         }
         // Otherwise, it's something else, and ignore it.
