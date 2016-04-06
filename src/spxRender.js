@@ -25,18 +25,26 @@ var threeOrMoreUnderscoresPattern = /(\\?_){3}(\\?_)*/g;
 var twoUnderscoresPattern = /(\\?_){2}/g;
 var numberCommaPattern = /(\d,)(?=\d\d\d)/g;
 
+var disableNewLinePattern = false;
+
 /* eslint-enable */
 
 function preprocessText(text, ignoreNewLines) {
-    text = text.replace(mathlabelCmds, '\\$1 ')
-               .replace(textitPattern, '<i>$1</i>')
+    text = text.replace(textitPattern, '<i>$1</i>')
                .replace(textbfPattern, '<b>$1</b>');
     if (!ignoreNewLines) {
-        text = text.replace(backslashNCommands, '<br/>')
-                   .replace(newLinePattern, '<br/>');
+        text = text.replace(backslashNCommands, '<br/>');
+        if (!disableNewLinePattern) {
+            text = text.replace(newLinePattern, '<br/>');
+        }
     }
     return text;
 }
+
+// The newLinePattern prevents running renderMathInElement on a document
+preprocessText.disableNewLineHack = function() {
+    disableNewLinePattern = true;
+};
 
 function replaceUnicodeInMath(math) {
     return math.replace(/\u2212/g, '-')
@@ -47,6 +55,7 @@ function replaceUnicodeInMath(math) {
 }
 
 function preprocessMath(math) {
+    math = math.replace(mathlabelCmds, '\\$1 ');
     return replaceUnicodeInMath(math)
                .replace(/\\degrees/g, '^\\circ')
                .replace('\\bold', '\\mathbf')
@@ -90,7 +99,9 @@ function renderMixedTextToString(text, suppressWarnings) {
                 }
             }
         } else {
-            bits[i] = htmlEscape(bit.replace("\\$", "$"));
+            bit = htmlEscape(bit.replace("\\$", "$"));
+            // And now this function is terribly named...
+            bits[i] = preprocessText(bit);
         }
     }
     return bits.join('');
@@ -105,7 +116,6 @@ function renderMathInElement(elem, ignoreNewLines, suppressWarnings) {
         if (childNode.nodeType === 3) {
             // Text node
             var text = childNode.textContent;
-            text = preprocessText(text, ignoreNewLines);
             var math = renderMixedTextToString(text, suppressWarnings);
             // Make a temporary span to render the content
             var s = document.createElement('span');
