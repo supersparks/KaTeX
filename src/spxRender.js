@@ -14,19 +14,26 @@ var backslashNCommands = /(\\n)(?!eq|otin)/g;
 var newLinePattern = /\n/g;
 
 /*
- * Maths specific patterns
+ * Maths specific patterns - tex fixes
  */
 
 var mathlabelCmds =/\\(pound|euro|yen|times|div|degrees|pi|neq|leq|geq|propto|pm)(?=\w)/g;
-var vectorPattern = /\\vector{((?:[^}$]|\\$[^$]*\\$)*)}{((?:[^}$]|\\$[^$]*\\$)*)}/g;
-var unitsPattern = /([^\\ ]) (am|mm|cm|km|ft|g|hrs?|kg|lb?|mins?|ml|mph|m|oz|pm|secs?|st|s)(?!\w)/g;
+var unitsSpacePattern = /([^\\ ]) (am|mm|cm|km|ft|g|hrs?|kg|lb?|mins?|ml|mph|m|oz|pm|secs?|st|s)(?!\w)/g;
 var manySpacesPattern = / {3} +/g;
 var threeOrMoreUnderscoresPattern = /(\\?_){3}(\\?_)*/g;
 var twoUnderscoresPattern = /(\\?_){2}/g;
+
+/*
+ * Maths specific patterns - macros
+ */
+
+var vectorPattern = /\\vector{((?:[^}$]|\\$[^$]*\\$)*)}{((?:[^}$]|\\$[^$]*\\$)*)}/g;
+var degreesPattern = /\\degrees/g;
 var numberCommaPattern = /(\d,)(?=\d\d\d)/g;
 var unescapedPercentPattern = /([^\\]|^)%/g;
 var ungroupedQuestionMarkPattern = /([^{?]|^)([?]+)([^}?]|$)/g;
-
+var unitPattern = /\\unit{([^}]*)}/g;
+var uscorePattern = /\\uscore{(\d+)}/g;
 /*
  * State
  */
@@ -60,29 +67,29 @@ function replaceUnicodeInMath(math) {
                .replace(/\u00d7/g, '\\times ');
 }
 
-function preprocessMath(math) {
-    return replaceUnicodeInMath(math)
-               .replace(mathlabelCmds, '\\$1 ')
-               .replace(/\\degrees/g, '^\\circ')
-               .replace('\\bold', '\\mathbf')
-               .replace(vectorPattern, '{$1 \\choose $2}')
-               .replace(unitsPattern, '$1\\,$2')
-               .replace(manySpacesPattern, '\\qquad ')
-               .replace(threeOrMoreUnderscoresPattern, '\\rule{2em}{0.01em}')
-               .replace(twoUnderscoresPattern, '\\rule{1em}{0.01em}')
+function preprocessMath(math, includeTexFixes) {
+    if (includeTexFixes) {
+        math = replaceUnicodeInMath(math)
+            .replace(mathlabelCmds, '\\$1 ')
+            .replace(unitsSpacePattern, '$1\\,$2')
+            .replace(manySpacesPattern, '\\qquad ')
+            .replace(threeOrMoreUnderscoresPattern, '\\rule{2em}{0.01em}')
+            .replace(twoUnderscoresPattern, '\\rule{1em}{0.01em}');
+    }
+    return math.replace(vectorPattern, '{$1 \\choose $2}')
+               .replace(degreesPattern, '^\\circ')
                .replace(numberCommaPattern, '$1\\!\\!')
                .replace(unescapedPercentPattern, '$1\\%')
-               .replace(ungroupedQuestionMarkPattern, '$1{$2}$3');
-               // see https://github.com/Khan/KaTeX/issues/433
-               // following not needed hopefully because of local fix:
-               //.replace(/-(?! )/, '- ');
+               .replace(ungroupedQuestionMarkPattern, '$1{$2}$3')
+               .replace(unitPattern, '\\,\\text{$1}')
+               .replace(uscorePattern, '\\rule{$1em}{0.01em}');
 }
 
-function renderMathToString(math) {
-    return renderToString(preprocessMath(math));
+function renderMathToString(math, includeTexFixes, options) {
+    return renderToString(preprocessMath(math, includeTexFixes), options);
 }
 
-function renderMixedTextToString(text, suppressWarnings) {
+function renderMixedTextToString(text, suppressWarnings, includeTexFixes) {
     var bits = text.match(/\$|(?:\\.|[^$])+/g);
     if (bits === null) {
         return '';
@@ -95,7 +102,7 @@ function renderMixedTextToString(text, suppressWarnings) {
             bits[i] = '';
         } else if (isMath) {
             try {
-                bits[i] = renderMathToString(bit);
+                bits[i] = renderMathToString(bit, includeTexFixes);
             } catch (exc) {
                 bits[i] = (
                     '<code class="invalid-math">' +
@@ -114,7 +121,10 @@ function renderMixedTextToString(text, suppressWarnings) {
     return bits.join('');
 }
 
-function renderMathInElement(elem, ignoreNewLines, suppressWarnings) {
+function renderMathInElement(elem,
+                             ignoreNewLines,
+                             suppressWarnings,
+                             includeTexFixes) {
     var ignoredTags = [
         "script", "noscript", "style", "textarea", "pre", "code",
     ];
@@ -123,7 +133,9 @@ function renderMathInElement(elem, ignoreNewLines, suppressWarnings) {
         if (childNode.nodeType === 3) {
             // Text node
             var text = childNode.textContent;
-            var math = renderMixedTextToString(text, suppressWarnings);
+            var math = renderMixedTextToString(
+                text, suppressWarnings, includeTexFixes
+            );
             // Make a temporary span to render the content
             var s = document.createElement('span');
             s.innerHTML = math;
@@ -142,7 +154,7 @@ function renderMathInElement(elem, ignoreNewLines, suppressWarnings) {
 
             if (shouldRender) {
                 renderMathInElement(
-                    childNode, ignoreNewLines, suppressWarnings
+                    childNode, ignoreNewLines, suppressWarnings, includeTexFixes
                 );
             }
         }
