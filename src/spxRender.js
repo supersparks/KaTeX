@@ -8,7 +8,6 @@ var htmlEscape = require('html-escape');
  * General patterns
  */
 
-var mathlabelCmds =/\\(pound|euro|yen|times|div|degrees|pi|neq|leq|geq|propto|pm)(?=\w)/g;
 var textitPattern = /\\textit{(([^}$]|\$[^$]*\$)*?)}/g;
 var textbfPattern = /\\textbf{(([^}$]|\$[^$]*\$)*?)}/g;
 var backslashNCommands = /(\\n)(?!eq|otin)/g;
@@ -18,12 +17,19 @@ var newLinePattern = /\n/g;
  * Maths specific patterns
  */
 
+var mathlabelCmds =/\\(pound|euro|yen|times|div|degrees|pi|neq|leq|geq|propto|pm)(?=\w)/g;
 var vectorPattern = /\\vector{((?:[^}$]|\\$[^$]*\\$)*)}{((?:[^}$]|\\$[^$]*\\$)*)}/g;
-var manySpacesPattern = / {3} +/g;
 var unitsPattern = /([^\\ ]) (am|mm|cm|km|ft|g|hrs?|kg|lb?|mins?|ml|mph|m|oz|pm|secs?|st|s)(?!\w)/g;
+var manySpacesPattern = / {3} +/g;
 var threeOrMoreUnderscoresPattern = /(\\?_){3}(\\?_)*/g;
 var twoUnderscoresPattern = /(\\?_){2}/g;
 var numberCommaPattern = /(\d,)(?=\d\d\d)/g;
+var unescapedPercentPattern = /([^\\]|^)%/g;
+var equalsQuestionPattern = /=\?/g;
+
+/*
+ * State
+ */
 
 var disableNewLinePattern = false;
 
@@ -55,8 +61,8 @@ function replaceUnicodeInMath(math) {
 }
 
 function preprocessMath(math) {
-    math = math.replace(mathlabelCmds, '\\$1 ');
     return replaceUnicodeInMath(math)
+               .replace(mathlabelCmds, '\\$1 ')
                .replace(/\\degrees/g, '^\\circ')
                .replace('\\bold', '\\mathbf')
                .replace(vectorPattern, '{$1 \\choose $2}')
@@ -65,7 +71,8 @@ function preprocessMath(math) {
                .replace(threeOrMoreUnderscoresPattern, '\\rule{2em}{0.01em}')
                .replace(twoUnderscoresPattern, '\\rule{1em}{0.01em}')
                .replace(numberCommaPattern, '$1\\!\\!')
-               .replace(/([^\\]|^)%/g, '$1\\%');
+               .replace(unescapedPercentPattern, '$1\\%')
+               .replace(equalsQuestionPattern, '={?}');
                // see https://github.com/Khan/KaTeX/issues/433
                // following not needed hopefully because of local fix:
                //.replace(/-(?! )/, '- ');
