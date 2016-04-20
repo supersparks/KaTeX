@@ -25,7 +25,7 @@ var threeOrMoreUnderscoresPattern = /(\\?_){3}(\\?_)*/g;
 var twoUnderscoresPattern = /(\\?_){2}/g;
 var numberCommaPattern = /(\d,)(?=\d\d\d)/g;
 var unescapedPercentPattern = /([^\\]|^)%/g;
-var questionPattern = /\?/g;
+var ungroupedQuestionMarkPattern = /([^{?]|^)([?]+)([^}?]|$)/g;
 
 /*
  * State
@@ -72,7 +72,7 @@ function preprocessMath(math) {
                .replace(twoUnderscoresPattern, '\\rule{1em}{0.01em}')
                .replace(numberCommaPattern, '$1\\!\\!')
                .replace(unescapedPercentPattern, '$1\\%')
-               .replace(questionPattern, '{?}');
+               .replace(ungroupedQuestionMarkPattern, '$1{$2}$3');
                // see https://github.com/Khan/KaTeX/issues/433
                // following not needed hopefully because of local fix:
                //.replace(/-(?! )/, '- ');
