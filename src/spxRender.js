@@ -34,6 +34,7 @@ var unescapedPercentPattern = /([^\\]|^)%/g;
 var ungroupedQuestionMarkPattern = /([^{?]|^)([?]+)([^}?]|$)/g;
 var unitPattern = /\\unit{([^}]*)}/g;
 var uscorePattern = /\\uscore{(\d+)}/g;
+
 /*
  * State
  */
