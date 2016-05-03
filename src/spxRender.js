@@ -32,7 +32,6 @@ var degreesPattern = /\\degrees/g;
 var numberCommaPattern = /(\d,)(?=\d\d\d)/g;
 var unescapedPercentPattern = /([^\\]|^)%/g;
 var ungroupedQuestionMarkPattern = /([^{?]|^)([?]+)([^?]|$)|([^?]|^)([?]+)([^}?]|$)/g;
-var unitPattern = /\\unit{([^}]*)}/g;
 var uscorePattern = /\\uscore{(\d+)}/g;
 
 /*
@@ -82,7 +81,6 @@ function preprocessMath(math, includeTexFixes) {
                .replace(numberCommaPattern, '$1\\!\\!')
                .replace(unescapedPercentPattern, '$1\\%')
                .replace(ungroupedQuestionMarkPattern, '$1{$2}$3')
-               .replace(unitPattern, '\\,\\text{$1}')
                .replace(uscorePattern, '\\rule{$1em}{0.01em}');
 }
 
