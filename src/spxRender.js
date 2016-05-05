@@ -31,7 +31,7 @@ var vectorPattern = /\\vector{((?:[^}$]|\\$[^$]*\\$)*)}{((?:[^}$]|\\$[^$]*\\$)*)
 var degreesPattern = /\\degrees/g;
 var numberCommaPattern = /(\d,)(?=\d\d\d)/g;
 var unescapedPercentPattern = /([^\\]|^)%/g;
-var ungroupedQuestionMarkPattern = /([^{?]|^)([?]+)([^?]|$)|([^?]|^)([?]+)([^}?]|$)/g;
+var ungroupedQuestionMarkPattern = /([^{?]|^)([?]+)([^}?]|$)/g;
 var uscorePattern = /\\uscore{(\d+)}/g;
 
 /*
