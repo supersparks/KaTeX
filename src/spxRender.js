@@ -10,7 +10,7 @@ var htmlEscape = require('html-escape');
 
 var textitPattern = /\\textit{(([^}$]|\$[^$]*\$)*?)}/g;
 var textbfPattern = /\\textbf{(([^}$]|\$[^$]*\$)*?)}/g;
-var backslashNCommands = /(\\n)(?!eq|otin)/g;
+var backslashNCommands = /(\\n)(?!eq|otin) /g;
 var newLinePattern = /\n/g;
 
 /*
