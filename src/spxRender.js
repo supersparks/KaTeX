@@ -81,7 +81,7 @@ function preprocessMath(math, includeTexFixes) {
                .replace(numberCommaPattern, '$1\\!\\!')
                .replace(unescapedPercentPattern, '$1\\%')
                .replace(ungroupedQuestionMarkPattern, '$1{$2}$3')
-               .replace(uscorePattern, '\\rule{$1em}{0.01em}');
+               .replace(uscorePattern, '\\rule{$1em}{0.02em}');
 }
 
 function renderMathToString(math, includeTexFixes, options) {
