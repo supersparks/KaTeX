@@ -11,7 +11,6 @@ var htmlEscape = require('html-escape');
 var textitPattern = /\\textit{(([^}$]|\$[^$]*\$)*?)}/g;
 var textbfPattern = /\\textbf{(([^}$]|\$[^$]*\$)*?)}/g;
 var backslashNCommands = /\\n(?![a-zA-Z])/g;
-var newLinePattern = /\n/g;
 
 /*
  * Maths specific patterns - macros
@@ -28,8 +27,6 @@ var uscorePattern = /\\uscore{(\d+)}/g;
  * State
  */
 
-var disableNewLinePattern = false;
-
 /* eslint-enable */
 
 function preprocessText(text, ignoreNewLines) {
@@ -37,17 +34,9 @@ function preprocessText(text, ignoreNewLines) {
                .replace(textbfPattern, '<b>$1</b>');
     if (!ignoreNewLines) {
         text = text.replace(backslashNCommands, '<br/>');
-        if (!disableNewLinePattern) {
-            text = text.replace(newLinePattern, '<br/>');
-        }
     }
     return text;
 }
-
-// The newLinePattern prevents running renderMathInElement on a document
-preprocessText.disableNewLineHack = function() {
-    disableNewLinePattern = true;
-};
 
 function preprocessMath(math) {
     return math.replace(vectorPattern, '{$1 \\choose $2}')
