@@ -11,6 +11,7 @@ var htmlEscape = require('html-escape');
 var textitPattern = /\\textit{(([^}$]|\$[^$]*\$)*?)}/g;
 var textbfPattern = /\\textbf{(([^}$]|\$[^$]*\$)*?)}/g;
 var backslashNCommands = /\\n(?![a-zA-Z])/g;
+var nonBreakingSpacePattern = /~/g;
 
 /*
  * Maths specific patterns - macros
@@ -31,7 +32,8 @@ var uscorePattern = /\\uscore{(\d+)}/g;
 
 function preprocessText(text, ignoreNewLines) {
     text = text.replace(textitPattern, '<i>$1</i>')
-               .replace(textbfPattern, '<b>$1</b>');
+               .replace(textbfPattern, '<b>$1</b>')
+               .replace(nonBreakingSpacePattern, '\xa0');
     if (!ignoreNewLines) {
         text = text.replace(backslashNCommands, '<br/>');
     }
