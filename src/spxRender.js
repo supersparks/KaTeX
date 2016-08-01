@@ -10,7 +10,7 @@ var htmlEscape = require('html-escape');
 
 var textitPattern = /\\textit{(([^}$]|\$[^$]*\$)*?)}/g;
 var textbfPattern = /\\textbf{(([^}$]|\$[^$]*\$)*?)}/g;
-var backslashNCommands = /(\\n)(?!eq|otin)/g;
+var backslashNCommands = /\\n(?![a-zA-Z])/g;
 var newLinePattern = /\n/g;
 
 /*
@@ -22,7 +22,6 @@ var degreesPattern = /\\degrees/g;
 var numberCommaPattern = /(\d,)(?=\d\d\d)/g;
 var unescapedPercentPattern = /([^\\]|^)%/g;
 var ungroupedQuestionMarkPattern = /([^{?]|^)([?]+)([^}?]|$)/g;
-var unitPattern = /\\unit{([^}]*)}/g;
 var uscorePattern = /\\uscore{(\d+)}/g;
 
 /*
@@ -56,8 +55,7 @@ function preprocessMath(math) {
                .replace(numberCommaPattern, '$1\\!\\!')
                .replace(unescapedPercentPattern, '$1\\%')
                .replace(ungroupedQuestionMarkPattern, '$1{$2}$3')
-               .replace(unitPattern, '\\,\\text{$1}')
-               .replace(uscorePattern, '\\rule{$1em}{0.01em}');
+               .replace(uscorePattern, '\\rule{$1em}{0.02em}');
 }
 
 function renderMathToString(math, options) {
