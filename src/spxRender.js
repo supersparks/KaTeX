@@ -8,10 +8,16 @@ var htmlEscape = require('html-escape');
  * General patterns
  */
 
-var textitPattern = /\\textit{(([^}$]|\$[^$]*\$)*?)}/g;
-var textbfPattern = /\\textbf{(([^}$]|\$[^$]*\$)*?)}/g;
 var backslashNCommands = /\\n(?![a-zA-Z])/g;
 var nonBreakingSpacePattern = /~/g;
+
+// Mapping of Latex tags with HTML tags to replace them with. (Closing brace
+// is also handled as a special case)
+var latexTags = {
+    "\\textbf{": "b",
+    "\\textit{": "i",
+    "}": ""
+};
 
 /*
  * Maths specific patterns - macros
@@ -31,9 +37,7 @@ var uscorePattern = /\\uscore{(\d+)}/g;
 /* eslint-enable */
 
 function preprocessText(text, ignoreNewLines) {
-    text = text.replace(textitPattern, '<i>$1</i>')
-               .replace(textbfPattern, '<b>$1</b>')
-               .replace(nonBreakingSpacePattern, '\xa0');
+    text = text.replace(nonBreakingSpacePattern, '\xa0');
     if (!ignoreNewLines) {
         text = text.replace(backslashNCommands, '<br/>');
     }
@@ -42,11 +46,11 @@ function preprocessText(text, ignoreNewLines) {
 
 function preprocessMath(math) {
     return math.replace(vectorPattern, '{$1 \\choose $2}')
-               .replace(degreesPattern, '^\\circ')
-               .replace(numberCommaPattern, '$1\\!\\!')
-               .replace(unescapedPercentPattern, '$1\\%')
-               .replace(ungroupedQuestionMarkPattern, '$1{$2}$3')
-               .replace(uscorePattern, '\\rule{$1em}{0.02em}');
+        .replace(degreesPattern, '^\\circ')
+        .replace(numberCommaPattern, '$1\\!\\!')
+        .replace(unescapedPercentPattern, '$1\\%')
+        .replace(ungroupedQuestionMarkPattern, '$1{$2}$3')
+        .replace(uscorePattern, '\\rule{$1em}{0.02em}');
 }
 
 function renderMathToString(math, options) {
@@ -54,6 +58,10 @@ function renderMathToString(math, options) {
 }
 
 function renderMixedTextToString(text, suppressWarnings) {
+    // A stack to contain html tags in the text elements that we have opened,
+    // but not closed yet
+    var tagStack = [];
+
     var bits = text.match(/\$|(?:\\.|[^$])+/g);
     if (bits === null) {
         return '';
@@ -78,11 +86,63 @@ function renderMixedTextToString(text, suppressWarnings) {
             }
         } else {
             bit = htmlEscape(bit.replace("\\$", "$"));
-            // And now this function is terribly named...
-            bits[i] = preprocessText(bit);
+
+            // Replace Latex tags such as \textbf{...} and \textit{...} with
+            // HTML tags such as <b>...</b> and <i>...</i>
+            bit = replaceLatexTagsWithHtmlTags(bit, tagStack);
+            bits[i] = bit;
         }
     }
-    return bits.join('');
+    return preprocessText(bits.join(''));
+}
+
+/**
+ * Replaces Latex sections of a bit of a string with equivalent HTML elements.
+ * At present \textbf{ ... } is replaced with <b> ... </b> and |textit{ ... }
+ * is replaced with <i> ... </i>
+ * @param bit The bit of the string to be modified
+ * @param tagStack A stack of the open tags in the string (to allow a tag
+ * opened in one bit to be closed in a following bit, preserving the
+ * opening/closing order)
+ * @returns {*} The modified bit of a string
+ */
+function replaceLatexTagsWithHtmlTags(bit, tagStack) {
+    var firstTagIdx, firstTag, index, tag, lastOpenedTag;
+
+    // Find the first Latex tag or closing brace in the bit. Replace a Latex
+    // tag its corresponding HTML tag, and then push the tag onto the stack
+    // to be closed when we get to the next closing brace (which might be in
+    // the next bit). If we encounter a closing brace, replace it with the
+    // top closing tag on the stack. Continue repeating until there are no more
+    // Latex tags or closing braces in the string.
+    do {
+        firstTagIdx = -1;
+        firstTag = null;
+        index = -1;
+
+        // Find the first Latex tag or closing brace that occurs in the bit:
+        for (tag in latexTags) {
+            index = bit.indexOf(tag);
+            if (index !== -1 && (index < firstTagIdx || firstTagIdx === -1)) {
+                firstTagIdx = index;
+                firstTag = tag;
+            }
+        }
+
+        // Replace the Latex tag or closing brace with HTML opening or
+        // closing tag:
+        if (firstTag === "}") {
+            lastOpenedTag = tagStack.pop();
+            if (lastOpenedTag) {
+                bit = bit.replace("}", "</" + lastOpenedTag + ">");
+            }
+        } else if (firstTag) {
+            bit = bit.replace(firstTag, "<" +  latexTags[firstTag] + ">");
+            tagStack.push(latexTags[firstTag]);
+        }
+    } while (firstTagIdx > -1);
+
+    return bit;
 }
 
 function renderMathInElement(elem,
@@ -111,7 +171,7 @@ function renderMathInElement(elem,
         } else if (childNode.nodeType === 1) {
             // Element node
             var shouldRender = ignoredTags.indexOf(
-                childNode.nodeName.toLowerCase()) === -1;
+                    childNode.nodeName.toLowerCase()) === -1;
 
             if (shouldRender) {
                 renderMathInElement(
