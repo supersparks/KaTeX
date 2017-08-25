@@ -13,7 +13,7 @@ var nonBreakingSpacePattern = /~/g;
 
 // Mapping of Latex tags with HTML tags to replace them with. (Closing brace
 // is also handled as a special case)
-var latexTags = {
+var LATEX_TAGS = {
     "\\textbf{": "b",
     "\\textit{": "i",
     "}": ""
@@ -107,42 +107,51 @@ function renderMixedTextToString(text, suppressWarnings) {
  * @returns {*} The modified bit of a string
  */
 function replaceLatexTagsWithHtmlTags(bit, tagStack) {
-    var firstTagIdx, firstTag, index, tag, lastOpenedTag;
+    var ret = "";
+    var input = bit;
+    var tag;
+    var firstTag;
+    var firstTagIdx;
+    var index;
+    var lastOpenedTag;
 
-    // Find the first Latex tag or closing brace in the bit. Replace a Latex
-    // tag its corresponding HTML tag, and then push the tag onto the stack
-    // to be closed when we get to the next closing brace (which might be in
-    // the next bit). If we encounter a closing brace, replace it with the
-    // top closing tag on the stack. Continue repeating until there are no more
-    // Latex tags or closing braces in the string.
-    do {
-        firstTagIdx = -1;
+    while (input) {
+        firstTagIdx = input.length;
         firstTag = null;
         index = -1;
 
-        // Find the first Latex tag or closing brace that occurs in the bit:
-        for (tag in latexTags) {
-            index = bit.indexOf(tag);
-            if (index !== -1 && (index < firstTagIdx || firstTagIdx === -1)) {
+        for (tag in LATEX_TAGS) { //eslint-disable-line guard-for-in
+            index = input.indexOf(tag);
+            if (index !== -1 && index < firstTagIdx) {
                 firstTagIdx = index;
                 firstTag = tag;
             }
         }
-
-        // Replace the Latex tag or closing brace with HTML opening or
-        // closing tag:
-        if (firstTag === "}") {
-            lastOpenedTag = tagStack.pop();
-            if (lastOpenedTag) {
-                bit = bit.replace("}", "</" + lastOpenedTag + ">");
+        if (firstTag) {
+         // If we have a tag it must be length 1, therefore input must shrink
+            ret += input.substring(0, firstTagIdx);
+            input = input.substring(
+                firstTagIdx + firstTag.length, input.length
+            );
+            if (firstTag === "}") {
+                lastOpenedTag = tagStack.pop();
+                if (lastOpenedTag) {
+                    ret += "</" + lastOpenedTag + ">";
+                } else {
+                    ret += "}";
+                }
+            } else {
+                ret += "<" +  LATEX_TAGS[firstTag] + ">";
+                tagStack.push(LATEX_TAGS[firstTag]);
             }
-        } else if (firstTag) {
-            bit = bit.replace(firstTag, "<" +  latexTags[firstTag] + ">");
-            tagStack.push(latexTags[firstTag]);
+        } else {
+            // Otherwise we set input to empty, allowing the loop to break
+            ret += input;
+            input = "";
         }
-    } while (firstTagIdx > -1);
+    }
 
-    return bit;
+    return ret;
 }
 
 function renderMathInElement(elem,
