@@ -1,33 +1,20 @@
 {
-  "name": "spx-katex",
+  "name": "katex",
   "version": "0.10.1-pre",
   "description": "Fast math typesetting for the web.",
   "main": "dist/katex.js",
   "homepage": "https://katex.org",
   "repository": {
     "type": "git",
-    "url": "https://github.com/supersparks/KaTeX.git"
+    "url": "git://github.com/KaTeX/KaTeX.git"
   },
   "files": [
     "katex.js",
     "cli.js",
     "src/",
-    "static/",
-    "Makefile",
-    "server.js",
     "contrib/",
-    "build/",
     "dist/"
   ],
-  "dependencies": {
-    "browserify": "^16.2.3",
-    "clean-css": "~2.2.15",
-    "commander": "^2.16.0",
-    "html-escape": "^1.0.2",
-    "less": "^3.0.4",
-    "match-at": "^0.1.0",
-    "uglify-js": "^3.4.9"
-  },
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.0.0",
@@ -53,16 +40,12 @@
     "eslint-plugin-flowtype": "^3.0.0",
     "eslint-plugin-react": "^7.10.0",
     "eslint-plugin-transform-runtime-aliasing": "^2.0.0",
-    "express": "^4.16.4",
     "file-loader": "^2.0.0",
     "flow-bin": "^0.89.0",
     "fs-extra": "^7.0.0",
-    "glob": "^5.0.15",
     "husky": "^1.0.0-rc.8",
     "istanbul-api": "^2.0.5",
     "istanbul-lib-coverage": "^2.0.1",
-    "jasmine": "^2.3.2",
-    "jasmine-core": "^2.3.4",
     "jest": "^23.5.0",
     "jest-serializer-html": "^6.0.0",
     "js-yaml": "^3.10.0",
@@ -72,7 +55,6 @@
     "less-loader": "^4.1.0",
     "mini-css-extract-plugin": "^0.4.0",
     "mkdirp": "^0.5.1",
-    "nomnom": "^1.8.1",
     "pako": "1.0.6",
     "postcss-loader": "^3.0.0",
     "query-string": "^6.2.0",
@@ -114,6 +96,9 @@
     "watch": "yarn build --watch",
     "dist": "yarn test && yarn build && yarn dist:zip",
     "dist:zip": "rimraf katex/ katex.tar.gz katex.zip && cp -R dist katex && tar czf katex.tar.gz katex && zip -rq katex.zip katex && rimraf katex/"
+  },
+  "dependencies": {
+    "commander": "^2.16.0"
   },
   "husky": {
     "hooks": {
