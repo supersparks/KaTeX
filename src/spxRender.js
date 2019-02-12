@@ -1,19 +1,19 @@
 /* eslint no-console:0 */
 
-var renderToString = require('./render').renderToString;
-var htmlEscape = require('html-escape');
+import {renderToString} from './render';
+import {htmlEscape} from 'html-escape';
 
 /* eslint-disable */
 /*
  * General patterns
  */
 
-var backslashNCommands = /\\n(?![a-zA-Z])/g;
-var nonBreakingSpacePattern = /~/g;
+const backslashNCommands = /\\n(?![a-zA-Z])/g;
+const nonBreakingSpacePattern = /~/g;
 
 // Mapping of Latex tags with HTML tags to replace them with. (Closing brace
 // is also handled as a special case)
-var LATEX_TAGS = {
+const LATEX_TAGS = {
     "\\textbf{": "b",
     "\\textit{": "i",
     "}": ""
@@ -23,12 +23,12 @@ var LATEX_TAGS = {
  * Maths specific patterns - macros
  */
 
-var vectorPattern = /\\vector{((?:[^}$]|\\$[^$]*\\$)*)}{((?:[^}$]|\\$[^$]*\\$)*)}/g;
-var degreesPattern = /\\degrees/g;
-var numberCommaPattern = /(\d,)(?=\d\d\d)/g;
-var unescapedPercentPattern = /([^\\]|^)%/g;
-var ungroupedQuestionMarkPattern = /([^{?]|^)([?]+)([^}?]|$)/g;
-var uscorePattern = /\\uscore{(\d+)}/g;
+const vectorPattern = /\\vector{((?:[^}$]|\\$[^$]*\\$)*)}{((?:[^}$]|\\$[^$]*\\$)*)}/g;
+const degreesPattern = /\\degrees/g;
+const numberCommaPattern = /(\d,)(?=\d\d\d)/g;
+const unescapedPercentPattern = /([^\\]|^)%/g;
+const ungroupedQuestionMarkPattern = /([^{?]|^)([?]+)([^}?]|$)/g;
+const uscorePattern = /\\uscore{(\d+)}/g;
 
 /*
  * State
@@ -60,15 +60,15 @@ function renderMathToString(math, options) {
 function renderMixedTextToString(text, suppressWarnings) {
     // A stack to contain html tags in the text elements that we have opened,
     // but not closed yet
-    var tagStack = [];
+    const tagStack = [];
 
-    var bits = text.match(/\$|(?:\\.|[^$])+/g);
+    const bits = text.match(/\$|(?:\\.|[^$])+/g);
     if (bits === null) {
         return '';
     }
-    var isMath = false;
-    for (var i = 0; i < bits.length; i++) {
-        var bit = bits[i];
+    let isMath = false;
+    for (let i = 0; i < bits.length; i++) {
+        let bit = bits[i];
         if (bit === '$') {
             isMath = !isMath;
             bits[i] = '';
@@ -107,13 +107,13 @@ function renderMixedTextToString(text, suppressWarnings) {
  * @returns {*} The modified bit of a string
  */
 function replaceLatexTagsWithHtmlTags(bit, tagStack) {
-    var ret = "";
-    var input = bit;
-    var tag;
-    var firstTag;
-    var firstTagIdx;
-    var index;
-    var lastOpenedTag;
+    let ret = "";
+    let input = bit;
+    let tag;
+    let firstTag;
+    let firstTagIdx;
+    let index;
+    let lastOpenedTag;
 
     while (input) {
         firstTagIdx = input.length;
@@ -157,20 +157,20 @@ function replaceLatexTagsWithHtmlTags(bit, tagStack) {
 function renderMathInElement(elem,
                              ignoreNewLines,
                              suppressWarnings) {
-    var ignoredTags = [
+    const ignoredTags = [
         "script", "noscript", "style", "textarea", "pre", "code",
     ];
-    for (var i = 0; i < elem.childNodes.length; i++) {
-        var childNode = elem.childNodes[i];
+    for (let i = 0; i < elem.childNodes.length; i++) {
+        const childNode = elem.childNodes[i];
         if (childNode.nodeType === 3) {
             // Text node
-            var text = childNode.textContent;
-            var math = renderMixedTextToString(text, suppressWarnings);
+            const text = childNode.textContent;
+            const math = renderMixedTextToString(text, suppressWarnings);
             // Make a temporary span to render the content
-            var s = document.createElement('span');
+            const s = document.createElement('span');
             s.innerHTML = math;
             // Copy the spans children to make a document fragment
-            var frag = document.createDocumentFragment();
+            const frag = document.createDocumentFragment();
             while (s.childNodes.length) {
                 frag.appendChild(s.childNodes[0]);
             }
@@ -179,7 +179,7 @@ function renderMathInElement(elem,
             elem.replaceChild(frag, childNode);
         } else if (childNode.nodeType === 1) {
             // Element node
-            var shouldRender = ignoredTags.indexOf(
+            const shouldRender = ignoredTags.indexOf(
                     childNode.nodeName.toLowerCase()) === -1;
 
             if (shouldRender) {
@@ -192,7 +192,7 @@ function renderMathInElement(elem,
     }
 }
 
-module.exports = {
+export default {
     preprocessText: preprocessText,
     preprocessMath: preprocessMath,
     renderMathToString: renderMathToString,

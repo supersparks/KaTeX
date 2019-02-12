@@ -20,12 +20,13 @@
     "dist/"
   ],
   "dependencies": {
-      "match-at": "^0.1.0",
-      "browserify": "^10.2.4",
-      "uglify-js": "~2.4.15",
-      "less": "~1.7.5",
-      "clean-css": "~2.2.15",
-      "html-escape": "^1.0.2"
+    "browserify": "^16.2.3",
+    "clean-css": "~2.2.15",
+    "commander": "^2.16.0",
+    "html-escape": "^1.0.2",
+    "less": "^3.0.4",
+    "match-at": "^0.1.0",
+    "uglify-js": "^3.4.9"
   },
   "license": "MIT",
   "devDependencies": {
@@ -52,7 +53,7 @@
     "eslint-plugin-flowtype": "^3.0.0",
     "eslint-plugin-react": "^7.10.0",
     "eslint-plugin-transform-runtime-aliasing": "^2.0.0",
-    "express": "~3.3.3",
+    "express": "^4.16.4",
     "file-loader": "^2.0.0",
     "flow-bin": "^0.89.0",
     "fs-extra": "^7.0.0",
@@ -112,18 +113,7 @@
     "build": "yarn prestart && rimraf dist/ && mkdirp dist && cp README.md dist && rollup -c && webpack",
     "watch": "yarn build --watch",
     "dist": "yarn test && yarn build && yarn dist:zip",
-    "dist:zip": "rimraf katex/ katex.tar.gz katex.zip && cp -R dist katex && tar czf katex.tar.gz katex && zip -rq katex.zip katex && rimraf katex/",
-    "prepublish": "make dist",
-    "install": "make mydist"
-  },
-  "dependencies": {
-    "commander": "^2.16.0",
-    "match-at": "^0.1.0",
-    "browserify": "^10.2.4",
-    "uglify-js": "~2.4.15",
-    "less": "~1.7.5",
-    "clean-css": "~2.2.15",
-    "html-escape": "^1.0.2"
+    "dist:zip": "rimraf katex/ katex.tar.gz katex.zip && cp -R dist katex && tar czf katex.tar.gz katex && zip -rq katex.zip katex && rimraf katex/"
   },
   "husky": {
     "hooks": {

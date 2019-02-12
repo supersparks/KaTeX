@@ -1,11 +1,7 @@
 // @flow
 /* eslint no-console:0 */
 
-var render = require('./src/render');
-var spxRender = require('./src/spxRender');
-
-export { render.render as render};
-export { render.renderToString as renderToString};
+import {spxRender} from './src/spxRender';
 
 import ParseError from "./src/ParseError";
 import Settings from "./src/Settings";
