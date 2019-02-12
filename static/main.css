@@ -1,11 +1,15 @@
 body {
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
+    font-size: 24px;
+}
+
+#math {
     font-size: 72px;
 }
 
 #input {
-    margin: 0px;
+    margin: 0;
     font-size: 100%;
     width: 100%;
     box-sizing: border-box;
