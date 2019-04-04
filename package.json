@@ -3,6 +3,7 @@
   "version": "0.6.0-pre",
   "description": "Fast math typesetting for the web.",
   "main": "katex.js",
+  "types": "katex.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/supersparks/KaTeX.git"
