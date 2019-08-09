@@ -911,17 +911,25 @@ groupTypes.overline = function(group, options, prev) {
     var ruleWidth = fontMetrics.metrics.defaultRuleThickness /
         options.style.sizeMultiplier;
 
+    var beforeLine = makeSpan(
+        [options.style.reset(), Style.TEXT.cls(), "overline-line-after"]);
+
     // Create the line above the body
     var line = makeSpan(
         [options.style.reset(), Style.TEXT.cls(), "overline-line"]);
     line.height = ruleWidth;
     line.maxFontSize = 1.0;
 
+    var afterLine = makeSpan(
+        [options.style.reset(), Style.TEXT.cls(), "overline-line-after"]);
+
     // Generate the vlist, with the appropriate kerns
     var vlist = buildCommon.makeVList([
         {type: "elem", elem: innerGroup},
         {type: "kern", size: 3 * ruleWidth},
+        {type: "elem", elem: beforeLine},
         {type: "elem", elem: line},
+        {type: "elem", elem: afterLine},
         {type: "kern", size: ruleWidth},
     ], "firstBaseline", null, options);
 
@@ -939,11 +947,21 @@ groupTypes.sqrt = function(group, options, prev) {
     var ruleWidth = fontMetrics.metrics.defaultRuleThickness /
         options.style.sizeMultiplier;
 
+    var beforeLine = makeSpan(
+        [options.style.reset(), Style.TEXT.cls(), "sqrt-line-after"]);
+    beforeLine.height = ruleWidth;
+    beforeLine.maxFontSize = 1.0;
+
+    // Create the line above the body
     var line = makeSpan(
-        [options.style.reset(), Style.TEXT.cls(), "sqrt-line"], [],
-        options.getColor());
+        [options.style.reset(), Style.TEXT.cls(), "sqrt-line"]);
     line.height = ruleWidth;
     line.maxFontSize = 1.0;
+
+    var afterLine = makeSpan(
+        [options.style.reset(), Style.TEXT.cls(), "sqrt-line-after"]);
+    afterLine.height = ruleWidth;
+    afterLine.maxFontSize = 1.0;
 
     var phi = ruleWidth;
     if (options.style.id < Style.TEXT.id) {
@@ -989,7 +1007,9 @@ groupTypes.sqrt = function(group, options, prev) {
         body = buildCommon.makeVList([
             {type: "elem", elem: inner},
             {type: "kern", size: lineClearance},
+            {type: "elem", elem: beforeLine},
             {type: "elem", elem: line},
+            {type: "elem", elem: afterLine},
             {type: "kern", size: ruleWidth},
         ], "firstBaseline", null, options);
     }
