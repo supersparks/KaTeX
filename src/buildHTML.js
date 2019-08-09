@@ -947,21 +947,12 @@ groupTypes.sqrt = function(group, options, prev) {
     var ruleWidth = fontMetrics.metrics.defaultRuleThickness /
         options.style.sizeMultiplier;
 
-    var beforeLine = makeSpan(
-        [options.style.reset(), Style.TEXT.cls(), "sqrt-line-after"]);
-    beforeLine.height = ruleWidth;
-    beforeLine.maxFontSize = 1.0;
-
     // Create the line above the body
     var line = makeSpan(
         [options.style.reset(), Style.TEXT.cls(), "sqrt-line"]);
     line.height = ruleWidth;
     line.maxFontSize = 1.0;
-
-    var afterLine = makeSpan(
-        [options.style.reset(), Style.TEXT.cls(), "sqrt-line-after"]);
-    afterLine.height = ruleWidth;
-    afterLine.maxFontSize = 1.0;
+    line.style.top = -inner.height + "em";
 
     var phi = ruleWidth;
     if (options.style.id < Style.TEXT.id) {
@@ -1005,11 +996,8 @@ groupTypes.sqrt = function(group, options, prev) {
         body = makeSpan();
     } else {
         body = buildCommon.makeVList([
-            {type: "elem", elem: inner},
-            {type: "kern", size: lineClearance},
-            {type: "elem", elem: beforeLine},
             {type: "elem", elem: line},
-            {type: "elem", elem: afterLine},
+            {type: "elem", elem: inner},
             {type: "kern", size: ruleWidth},
         ], "firstBaseline", null, options);
     }
